@@ -1,14 +1,14 @@
 library(Biostrings)
 genome <-DNAString("TCAACTGTTATCGTCCGGATCGTCCGGGAAGGGGCATCGTCCGGATCGTCCGGCACGATCGCCACGATCGCGAAGGGGCCACGATCGCCCCTTTACAGAAGGGGCTCAACTGTTCACGATCGCTCAACTGTTTCAACTGTTTCAACTGTTCCCTTTACACACGATCGCATCGTCCGGCACGATCGCCACGATCGCGAAGGGGCATCGTCCGGCACGATCGCGAAGGGGCCACGATCGCGAAGGGGCATCGTCCGGTCAACTGTTGAAGGGGCGAAGGGGCATCGTCCGGATCGTCCGGATCGTCCGGGAAGGGGCCCCTTTACATCAACTGTTATCGTCCGGGAAGGGGCATCGTCCGGCACGATCGCCACGATCGCCCCTTTACACCCTTTACATCAACTGTTATCGTCCGGGAAGGGGCCACGATCGCCCCTTTACACCCTTTACAGAAGGGGCATCGTCCGGATCGTCCGGATCGTCCGGGAAGGGGCATCGTCCGGCACGATCGCCCCTTTACAATCGTCCGGGAAGGGGCATCGTCCGGCACGATCGCTCAACTGTTCCCTTTACAATCGTCCGGTCAACTGTTCACGATCGCGAAGGGGCCACGATCGCGAAGGGGCATCGTCCGGCACGATCGCTCAACTGTTCACGATCGCATCGTCCGGCACGATCGCGAAGGGGCCCCTTTACACCCTTTACAATCGTCCGGGAAGGGGCATCGTCCGGCACGATCGCTCAACTGTTCCCTTTACAGAAGGGGCCACGATCGCGAAGGGGCATCGTCCGGCACGATCGCGAAGGGGCCCCTTTACACACGATCGCGAAGGGGCCCCTTTACACCCTTTACATCAACTGTTTCAACTGTTGAAGGGGCCCCTTTACATCAACTGTTCACGATCGCCCCTTTACAGAAGGGGCTCAACTGTT")
 
-#get most frequent 12-mer          
+##get most frequent 12-mer          
 genome11<- oligonucleotideFrequency(genome,11)
 genome11[genome11 == min(genome11)]
 b<- genome11[genome11 == max(genome11)] 
 
 
 
-#obtain reverse completement
+##obtain reverse completement
 install.packages('ape')
 library(stringr)
 getwd()
@@ -22,32 +22,25 @@ mat<-matchPattern("GAATAGAGA",new) #find the pattern matches going forward
 tam <- matchPattern("AGAGATAAG",new) #find the pattern matches going backward
 tam
 
-#pattern matching problem
+##pattern matching problem
 #set variables
 genomeTxt <- readLines('temp.txt')
 pattern <- 'CTTGATCAT'
 pattern2 <- reverse(pattern)
-forward <-matchPattern(pattern,genomeTxt)
-reverse<- matchPattern(pattern2,genomeTxt)
-answer <-forward@ranges@start
+forward <-matchPattern(pattern,genomeTxt) #find forward pattern match
+reverse<- matchPattern(pattern2,genomeTxt) #find reverse pattern match
+answer <-forward@ranges@start #how to subset when using matchPattern
 answer2 <- reverse@ranges@start
 answer
 answer2
 save(answer,file="care.txt")
-ans<- answer -1
-answer2 -1 
+#vectorize the answers for easier insert into Coursera
 t<- c(answer, answer2)
 as.vector(rbind(answer,answer2))
+#answer and answer 2 needed to be sorted for clear answer
 k<- sort(t)
-correct <- k-1
-correct
-correct
-k
-t
-forward
-ans
-l <- 12
-x[0:l]
+correct <- k-1 #coursera's indexing requires a -1 to all values
+
 
 
 ##Clump Finding Problem
@@ -84,30 +77,36 @@ clumpfinding <- function(Genome,k,L,t){
 clumpfinding(Genome,12,572,17)
 
 ##finding ORI
+#didn't create a fucntion as this, may have been easier
 library(Biostrings)
 genome <- readLines('genome.txt')
 fin <- 0
 vector <- c(0)
-genelength <- nchar(genome)
+genelength <- nchar(genome)#how many characters exist
 for (i in 1:genelength) {
+        #is the ith spot = to c?
         if(substr(genome,i,i)=='C'){
+               #c gives -1 value
                 fin<- fin-1;
                 vector <- c(vector,fin)
                 
         } else if (substr(genome,i,i) == 'G') {
+                #g gives +1 value
                 fin <- fin +1;
                 vector <- c(vector,fin)
                 
         } else {
+                #A and T don't provide values
                 fin <- fin+0
                 vector <- c(vector,fin)
         }
         
 }
 print(vector)
-which(vector==min(vector))-1
+#again to provide a clear answer to Coursera
+which(vector==min(vector))-1 
 
-#Hamming Distance
+##Hamming Distance
 library(Biostrings)
 genes <- readLines("HammingDistanceProblem.txt")
 Hammingdistance <- function(gene){
@@ -125,7 +124,7 @@ Hammingdistance <- function(gene){
 }
 Hammingdistance(genes)
 
-#Approx Pattern Matching Problem
+##Approx Pattern Matching Problem
 #very sloppy and non-function based
 string <- readLines('approxpattern.txt')
 string <- DNAString(string)
