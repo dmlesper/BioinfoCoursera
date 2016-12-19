@@ -1,7 +1,7 @@
 library(Biostrings)
+###MOD 1
+##get most frequent 12-mer 
 genome <-DNAString("TCAACTGTTATCGTCCGGATCGTCCGGGAAGGGGCATCGTCCGGATCGTCCGGCACGATCGCCACGATCGCGAAGGGGCCACGATCGCCCCTTTACAGAAGGGGCTCAACTGTTCACGATCGCTCAACTGTTTCAACTGTTTCAACTGTTCCCTTTACACACGATCGCATCGTCCGGCACGATCGCCACGATCGCGAAGGGGCATCGTCCGGCACGATCGCGAAGGGGCCACGATCGCGAAGGGGCATCGTCCGGTCAACTGTTGAAGGGGCGAAGGGGCATCGTCCGGATCGTCCGGATCGTCCGGGAAGGGGCCCCTTTACATCAACTGTTATCGTCCGGGAAGGGGCATCGTCCGGCACGATCGCCACGATCGCCCCTTTACACCCTTTACATCAACTGTTATCGTCCGGGAAGGGGCCACGATCGCCCCTTTACACCCTTTACAGAAGGGGCATCGTCCGGATCGTCCGGATCGTCCGGGAAGGGGCATCGTCCGGCACGATCGCCCCTTTACAATCGTCCGGGAAGGGGCATCGTCCGGCACGATCGCTCAACTGTTCCCTTTACAATCGTCCGGTCAACTGTTCACGATCGCGAAGGGGCCACGATCGCGAAGGGGCATCGTCCGGCACGATCGCTCAACTGTTCACGATCGCATCGTCCGGCACGATCGCGAAGGGGCCCCTTTACACCCTTTACAATCGTCCGGGAAGGGGCATCGTCCGGCACGATCGCTCAACTGTTCCCTTTACAGAAGGGGCCACGATCGCGAAGGGGCATCGTCCGGCACGATCGCGAAGGGGCCCCTTTACACACGATCGCGAAGGGGCCCCTTTACACCCTTTACATCAACTGTTTCAACTGTTGAAGGGGCCCCTTTACATCAACTGTTCACGATCGCCCCTTTACAGAAGGGGCTCAACTGTT")
-
-##get most frequent 12-mer          
 genome11<- oligonucleotideFrequency(genome,11)
 genome11[genome11 == min(genome11)]
 b<- genome11[genome11 == max(genome11)] 
@@ -76,6 +76,8 @@ clumpfinding <- function(Genome,k,L,t){
 
 clumpfinding(Genome,12,572,17)
 
+
+###Mod 2
 ##finding ORI
 #didn't create a fucntion as this, may have been easier
 library(Biostrings)
@@ -134,6 +136,82 @@ t<- as.vector(k@ranges@start,mode='any') #the @ranges@start is how you subset fo
 t <- t-1 #Coursera uses different numbering 
 cat(t) #remove inherited indexing to provide answer to Coursera 
 
+##Approx Pattern Count
+#Count the approximate pattern matches in a string
+library(Biostrings)
+string <- DNAString(readLines('aproxcount.txt'))
+pattern <- 'CGATTTT'
+PatMatch <- matchPattern(pattern,string,max.mismatch= 2,fixed=FALSE)
+MatchVec <- as.vector(PatMatch@ranges@start,mode='any')
+length(MatchVec)
+length(PatMatch)
 
-##Motif Enumeration Problem
+##Frequent Words with Mismatches
+string <- DNAString('ACGTTGCATGTCGCATGATGCATGAGAGCT')
+string <- DNAString(readLines('freqwordmismatch.txt'))
+FWM <- function(string,k,d){
+        kmer <- oligonucleotideFrequency(string,k)
+        vector <- c()
+        old <- 0
+        for(i in 1:length(kmer)){
+                kname <- names(kmer) #obtain all possible k-mers in existence 
+                pattern <-kname[i]  #subset based on the ith name in the length of kmers
+                PatMatch <- matchPattern(pattern,string,max.mismatch =d,fixed=FALSE) #find the number of pattern matches
+                
+                #if the same number of matches exist add the name to the vector
+                if (length(PatMatch)==old){
+                         vector <- c(vector,pattern)
+                }
+                #if more matches exist, replace vector with name of pattern        
+                else if (length(PatMatch)>old){
+                        vector <- c(pattern)
+                        old <- length(PatMatch)
+                } 
+                #at the end print vector
+                if (i==length(kmer)){
+                        print(vector)
+                }
+        }
+}
+FWM(string,4,1)
 
+##Frequent Word Mismatch and Rev Comp problem
+string <- DNAString(readLines('fwmrcp.txt'))
+FWMRCP <- function(string,k,d){
+        kmer <- oligonucleotideFrequency(string,k)
+        vector <- c()
+        old <- 0
+        for(i in 1:length(kmer)){
+                kname <- names(kmer) #obtain all possible k-mers in existence 
+                pattern <-kname[i]  #subset based on the ith name in the length of kmers
+                #find the number of pattern matches
+                PatMatch <- matchPattern(pattern,string,max.mismatch =d,fixed=FALSE)
+                #find the reverse completement pattern and see how many matches exist in string
+                RevPat <- as.character(reverseComplement(DNAString(pattern))) 
+                RevPatMatch<- matchPattern(RevPat,string,max.mismatch =d,fixed=FALSE)
+                
+                together <- length(PatMatch)+ length(RevPatMatch)
+                #if the same number of matches exist add the name to the vector
+                if (together==old){
+                        #see if RevPat and pattern are the same (take out any duplicates)
+                        if (RevPat==pattern){ 
+                                vector <- c(vector,pattern)
+                        } else if (RevPat != pattern){
+                                vector <- c(vector,pattern,RevPat)
+                        }
+                        #if more matches exist, replace vector with name of pattern        
+                } else if (together>old){
+                        if (RevPat==pattern){ 
+                                vector <- c(pattern)
+                        } else if (RevPat != pattern){
+                                vector <- c(pattern,RevPat)
+                        }
+                        old <- together
+                } 
+                #at the end print vector
+                if (i==length(kmer)){
+                        print(vector)
+                }
+        }
+}
+FWMRCP(string,7,2)
